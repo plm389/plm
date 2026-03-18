@@ -1,75 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Search</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; text-align: left; border: 1px solid #ccc; }
-        th { position: sticky; top: 0; background: #f4f4f4; }
-        tr.highlight { background-color: yellow; }
-        input[type='file'] { margin: 20px 0; }
-    </style>
+    <title>Nomenclátor</title>
 </head>
 <body>
-    <h1>CSV Search Functionality</h1>
-    <input type="file" id="csvFile" />
-    <input type="text" id="search" placeholder="Search..." />
-    <table id="csvTable">
-        <thead>
-            <tr id="headerRow"></tr>
-        </thead>
-        <tbody id="dataRows"></tbody>
-    </table>
-
+    <h1>Nomenclátor RGC y LSV</h1>
+    <form>
+        <label for="search">Buscar:</label>
+        <input type="text" id="search" name="search">
+        <input type="submit" value="Buscar">
+    </form>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.getElementById('csvFile').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                const text = e.target.result;
-                displayData(text);
-            };
-
-            reader.readAsText(file);
+        $(document).ready(function() {
+            // Load the rgclsv.csv file automatically
+            $.ajax({
+                url: 'https://raw.githubusercontent.com/plm389/plm/main/rgclsv.csv',
+                dataType: 'text'
+            }).done(function(data) {
+                // Process the CSV data
+                console.log(data);
+                // Further processing can be done here
+            });
         });
-
-        function displayData(csvText) {
-            const rows = csvText.split('\n').map(row => row.split(','));
-            const headerRow = document.getElementById('headerRow');
-            const dataRows = document.getElementById('dataRows');
-            headerRow.innerHTML = '';
-            dataRows.innerHTML = '';
-
-            rows[0].forEach(header => {
-                const th = document.createElement('th');
-                th.textContent = header;
-                headerRow.appendChild(th);
-            });
-
-            rows.slice(1).forEach(row => {
-                const tr = document.createElement('tr');
-                row.forEach(cell => {
-                    const td = document.createElement('td');
-                    td.textContent = cell;
-                    tr.appendChild(td);
-                });
-                dataRows.appendChild(tr);
-            });
-
-            document.getElementById('search').addEventListener('input', function() {
-                const searchText = this.value.toLowerCase();
-                Array.from(dataRows.children).forEach(row => {
-                    const cells = Array.from(row.cells);
-                    const isMatch = cells.some(cell => cell.textContent.toLowerCase().includes(searchText));
-                    row.style.display = isMatch ? '' : 'none';
-                    row.classList.toggle('highlight', isMatch);
-                });
-            });
-        }
     </script>
 </body>
 </html>
