@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Search</title>
+    <script>
+        async function searchCSV() {
+            const response = await fetch('data.csv'); // Change to your CSV file path
+            const data = await response.text();
+            const rows = data.split('\n');
+            const table = document.getElementById('csv-table');
+            table.innerHTML = '';
+
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+            rows.forEach(row => {
+                const columns = row.split(',');
+                const isMatch = columns.some(col => col.toLowerCase().includes(searchTerm));
+                if (isMatch) {
+                    const newRow = table.insertRow();
+                    columns.forEach(col => {
+                        const newCell = newRow.insertCell();
+                        newCell.textContent = col;
+                    });
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>CSV Search Functionality</h1>
+    <input type="text" id="search-input" placeholder="Search..." />
+    <button onclick="searchCSV()">Search</button>
+    <table border="1" id="csv-table"></table>
+</body>
+</html>
