@@ -4,26 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nomenclátor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            font-weight: 500;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #764ba2;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .table-section {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #667eea;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+
+        td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-size: 18px;
+        }
+
+        .info {
+            text-align: center;
+            color: #666;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            padding: 20px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Nomenclátor RGC y LSV</h1>
-    <form>
-        <label for="search">Buscar:</label>
-        <input type="text" id="search" name="search">
-        <input type="submit" value="Buscar">
-    </form>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <div class="container">
+        <h1>Nomenclátor</h1>
+        <h2>Nomenclátor RGC y LSV</h2>
+        
+        <div class="loading" id="loading">Cargando datos...</div>
+        
+        <div class="search-section" id="searchSection" style="display: none;">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Escribe una palabra o parte de ella..." 
+            >
+            <button onclick="filtrarDatos()">Buscar</button>
+        </div>
+
+        <div class="table-section">
+            <table id="resultTable" style="display: none;">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="noResults" class="no-results" style="display: none;">
+                No se encontraron resultados
+            </div>
+        </div>
+
+        <div class="info" id="info"></div>
+    </div>
+
     <script>
-        $(document).ready(function() {
-            // Load the rgclsv.csv file automatically
-            $.ajax({
-                url: 'https://raw.githubusercontent.com/plm389/plm/main/rgclsv.csv',
-                dataType: 'text'
-            }).done(function(data) {
-                // Process the CSV data
-                console.log(data);
-                // Further processing can be done here
+        let datosCSV = [];
+        let encabezados = [];
+
+        // Cargar el archivo CSV automáticamente al abrir la página
+        window.addEventListener('load', function() {
+            cargarCSV();
+        });
+
+        // Cargar CSV desde el repositorio
+        function cargarCSV() {
+            const csvUrl = 'https://raw.githubusercontent.com/plm389/plm/main/rgclsv.csv';
+            
+            fetch(csvUrl)
+                .then(response => response.text())
+                .then(contenido => {
+                    parsearCSV(contenido);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('searchSection').style.display = 'flex';
+                    document.getElementById('resultTable').style.display = 'table';
+                    document.getElementById('info').textContent = `✓ Archivo cargado: ${datosCSV.length} filas de datos`;
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('info').textContent = `❌ Error al cargar el CSV: ${error.message}`;
+                });
+        }
+
+        // Parsear CSV
+        function parsearCSV(contenido) {
+            const filas = contenido.trim().split('\n');
+            if (filas.length === 0) {
+                throw new Error('El archivo CSV está vacío');
+            }
+
+            // Primera fila = encabezados
+            encabezados = filas[0].split(',').map(col => col.trim());
+            
+            // Resto = datos
+            datosCSV = filas.slice(1).map(fila => {
+                return fila.split(',').map(valor => valor.trim());
             });
+
+            // Mostrar encabezados en la tabla
+            mostrarEncabezados();
+            
+            // Mostrar todos los datos inicialmente
+            mostrarDatos(datosCSV);
+        }
+
+        // Mostrar encabezados
+        function mostrarEncabezados() {
+            const thead = document.getElementById('tableHead');
+            thead.innerHTML = '<tr>' + 
+                encabezados.map(header => `<th>${header}</th>`).join('') + 
+                '</tr>';
+        }
+
+        // Mostrar datos en la tabla
+        function mostrarDatos(datos) {
+            const tbody = document.getElementById('tableBody');
+            const noResults = document.getElementById('noResults');
+
+            if (datos.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+            } else {
+                noResults.style.display = 'none';
+                tbody.innerHTML = datos.map(fila => {
+                    return '<tr>' + 
+                        fila.map(celda => `<td>${celda}</td>`).join('') + 
+                        '</tr>';
+                }).join('');
+            }
+        }
+
+        // Filtrar datos
+        function filtrarDatos() {
+            const palabraBusqueda = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            if (palabraBusqueda === '') {
+                mostrarDatos(datosCSV);
+                return;
+            }
+
+            const resultados = datosCSV.filter(fila => {
+                return fila.some(celda => 
+                    celda.toLowerCase().includes(palabraBusqueda)
+                );
+            });
+
+            mostrarDatos(resultados);
+        }
+
+        // Buscar al presionar Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filtrarDatos();
+            }
         });
     </script>
 </body>
