@@ -5,38 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSV Search</title>
     <style>
-        .table-container {
-            max-width: 1400px;
-            overflow: auto;
-        }
         table {
-            table-layout: fixed;
             width: 100%;
-            border-collapse: collapse;
+            table-layout: auto;
         }
         th, td {
-            white-space: normal;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            border: 1px solid #ddd;
             padding: 8px;
+            text-align: left;
+            word-wrap: break-word;
+            max-width: 200px; /* Adjust as necessary */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
 <body>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Column 1</th>
-                    <th>Column 2</th>
-                    <th>Column 3</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Your data rows would go here -->
-            </tbody>
-        </table>
-    </div>
+    <h1>Search CSV Data</h1>
+    <input type="text" id="searchInput" placeholder="Enter search terms...">
+    <button id="searchButton">Search</button>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+                <th>Column 3</th>
+                <!-- Add more column headers as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data rows will be inserted here dynamically -->
+        </tbody>
+    </table>
+
+    <script>
+        // Example JavaScript for CSV functionality to be added here.
+        document.getElementById('searchButton').addEventListener('click', function() {
+            var input = document.getElementById('searchInput').value;
+            // Implement search functionality here
+            console.log('Searching for: ' + input);
+        });
+    </script>
 </body>
 </html>
