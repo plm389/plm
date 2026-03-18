@@ -5,36 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSV Search</title>
     <style>
+        .table-container {
+            max-width: 1400px;
+            overflow: auto;
+        }
         table {
+            table-layout: fixed;
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
             border: 1px solid #ddd;
             padding: 8px;
-            word-break: break-word; /* Fix long cell content wrapping */
         }
     </style>
 </head>
 <body>
-    <h1>CSV Search</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Header 1</th>
-                <th>Header 2</th>
-                <th>Header 3</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Populate table rows here -->
-        </tbody>
-    </table>
-    <script>
-        function normalizeText(text) {
-            // Function to normalize text by removing accents for better display
-            return text.normalize('NFD').replace(/[-]/g, '');
-        }
-    </script>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Column 1</th>
+                    <th>Column 2</th>
+                    <th>Column 3</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Your data rows would go here -->
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
